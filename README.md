@@ -22,3 +22,7 @@ target.epub应在index.js目录下。
 
 
 __有bug请直接issues__
+
+
+## 更新记录
+- 2023.3.11 修复<a>链接的bug、加入夜间模式参数（用法 node index.js epub -b）
