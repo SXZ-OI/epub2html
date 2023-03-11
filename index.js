@@ -1,4 +1,3 @@
-const compressing = require("compressing");
 const args = require("minimist")(process.argv.slice(2));
 const fs = require("fs-extra");
 const path = require("path");
@@ -8,6 +7,7 @@ const config = {
     epub: String(args._.length ? args._[0] : "test.epub"),
     html: "",
     src: "",
+    dark: args.d||args.dark?1:0
 }
 config.html = config.epub.replace(/\.[^\.]+?$|$/, ".html"),
 config.src = config.epub.replace(/\.[^\.]+?$|$/, "")
@@ -43,11 +43,11 @@ fs.readFile(config.epub, (err, data) => {
         //提取章节、css、资源
         $("item").each(function () {
             let href = this.attribs.href;
-            if (href.match(/\.x?html$/))
+            if (href.match(/\.x?html$/i))
                 chapters[this.attribs.id] =href;
-            else if (href.match(/\.css$/))
+            else if (href.match(/\.css$/i))
                 css.push(href);
-            else if (href.match(/\.(jpe?g|png|gif|svg|ttf|otf)$/))
+            else if (href.match(/\.(jpe?g|png|gif|svg|ttf|otf)$/i))
                 src[this.attribs.id] = href;
         })
 
@@ -57,7 +57,7 @@ fs.readFile(config.epub, (err, data) => {
         <head>
             <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
             <link rel="shortcut icon" href="ico.png" />
-            <style>${fs.readFileSync("index.css")}</style>
+            <style>${fs.readFileSync(config.dark?"dark.css":"default.css")}</style>
         </head>
         <body>
         </body>
@@ -101,15 +101,13 @@ fs.readFile(config.epub, (err, data) => {
             chapter("a").each(function(){
                 if(this.attribs.href.match(/^#/))
                     return;
-                this.attribs.href="#"+chapters[x.attribs.idref].replace(/(?<=\/).+?$/,"")+this.attribs.href.replace(/#.+/, "");
+                this.attribs.href="#"+this.attribs.href.replace(/#.+|(\.+\/)/, "");
             });
             //修改各种URL
 
-            chapter("link").remove();
-            
-            let content = chapter("body");
-            content.children().attr("id", chapters[x.attribs.idref]);
-            html("body").append(content.html());
+            chapter("body").children().wrapAll("<section></section>");
+            chapter("section").attr("id", chapters[x.attribs.idref]);
+            html("body").append(chapter("body").html());
         }
 
         //输出
