@@ -25,4 +25,4 @@ __有bug请直接issues__
 
 
 ## 更新记录
-- 2023.3.11 修复<a>链接的bug、加入夜间模式参数（用法 node index.js epub -b）
+- 2023.3.11 修复<a>链接的bug、加入夜间模式参数-d/-dark（用法i.g. node index.js epub -d）
